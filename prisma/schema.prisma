@@ -20,14 +20,10 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  conversationIds String[]       @db.ObjectId
-  conversations   Conversation[] @relation(fields: [conversationIds], references: [id])
-
-  seenMessageIds String[]  @db.ObjectId
-  seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
-
   accounts Account[]
-  messages Message[]
+
+  books     Book[]   @relation(fields: [booksById], references: [id])
+  booksById String[] @db.ObjectId
 }
 
 model Account {
@@ -49,32 +45,49 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Conversation {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime @default(now())
-  lastMessageAt DateTime @default(now())
-  name          String?
-  isGroup       Boolean?
+model Book {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  codeDUX            String
+  ISBN               String?
+  genre              Genre   @relation(fields: [genreId], references: [id])
+  genreName          String
+  genreId            String  @db.ObjectId
+  title              String
+  author             String
+  urlIntl            String?
+  urlLocal           String?
+  techSpecs          String?
+  authorSpecs        String?
+  review             String?
+  isDeprecated       Boolean
+  isShown            Boolean
+  isDigital          Boolean
+  isHighlighted      Boolean
+  isNew              Boolean
+  isColeccion        Boolean
+  isCombo            Boolean
+  stock              Int?
+  discountPercentage Float   @default(0.0)
+  priceTN            Float?
+  priceML            Float?
+  priceUS            Float?
+  kg                 Float?
+  x                  Float?
+  y                  Float?
+  z                  Float?
+  imgFront           String?
+  imgBack            String?
+  urlGoogleDoc       String?
+  key                String?
 
-  messagesIds String[]  @db.ObjectId
-  messages    Message[]
-
-  userIds String[] @db.ObjectId
-  users   User[]   @relation(fields: [userIds], references: [id])
+  owners     User[]   @relation(fields: [ownersById], references: [id])
+  ownersById String[] @db.ObjectId
 }
 
-model Message {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  body      String?
-  image     String?
-  createdAt DateTime @default(now())
-
-  seenIds String[] @db.ObjectId
-  seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
-
-  conversationId String       @db.ObjectId
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  senderId String @db.ObjectId
-  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+model Genre {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  colorCode          String?
+  booksContainedById String[] @db.ObjectId
+  book               Book[]
 }

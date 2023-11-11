@@ -7,3 +7,25 @@ body,
 :root {
   height: 100%
 }
+
+h1,h2,h3,h4,h5,h6 {font-weight: bold;}
+
+a{
+  @apply cursor-pointer;
+}
+@layer components {
+  .button {
+  @apply bg-blue-500 hover:bg-celeste text-white font-bold py-2 my-2 px-4 rounded;
+}
+  .inputField {
+      @apply border-[1px] py-2 indent-1 outline-none focus:outline-none focus:ring h-full w-full rounded;  
+  }
+
+  .footer-title{
+    @apply text-base uppercase mt-2;
+  }
+  .footer-line{
+    @apply flex items-center gap-2;
+  }
+
+}

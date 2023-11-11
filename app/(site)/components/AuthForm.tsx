@@ -22,7 +22,7 @@ const AuthForm = () => {
 
   useEffect(() => {
     if (session?.status === 'authenticated') {
-     router.push('/dashboard')
+     router.push('/user')
     
     }
   }, [session?.status, router]);
@@ -65,7 +65,7 @@ const AuthForm = () => {
 
         if (callback?.ok) {
             toast.success("Registered OK and re-directed")
-         router.push('/dashboard')
+         router.push('/user')
         
         }
       })
@@ -84,7 +84,8 @@ const AuthForm = () => {
         }
 
         if (callback?.ok && !callback?.error) {
-          router.push('/dashboard')
+          toast.success("Usuario OK - Redirigiendo...")
+          router.push('/user')
         }
       })
       .finally(() => setIsLoading(false))
@@ -101,7 +102,8 @@ const AuthForm = () => {
         }
 
         if (callback?.ok  && !callback?.error) {
-          router.push('/conversations')
+          toast.success("Usuario OK - Redirigiendo...")
+          router.push('/user')
         }
       })
       .finally(() => setIsLoading(false));
@@ -130,7 +132,7 @@ const AuthForm = () => {
               errors={errors}
               required
               id="name" 
-              label="Name"
+              label="Nombre"
             />
           )}
           <Input 
@@ -139,7 +141,7 @@ const AuthForm = () => {
             errors={errors}
             required
             id="email" 
-            label="Email address" 
+            label="Email" 
             type="email"
           />
           <Input 
@@ -148,12 +150,12 @@ const AuthForm = () => {
             errors={errors}
             required
             id="password" 
-            label="Password" 
+            label="Contraseña" 
             type="password"
           />
           <div>
             <Button disabled={isLoading} fullWidth type="submit">
-              {variant === 'LOGIN' ? 'Sign in' : 'Register'}
+              {variant === 'LOGIN' ? 'Entrar' : 'Registrarme'}
             </Button>
           </div>
         </form>
@@ -172,7 +174,7 @@ const AuthForm = () => {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-gray-500">
-                Or continue with
+                O si preferís entrá con
               </span>
             </div>
           </div>
@@ -200,13 +202,13 @@ const AuthForm = () => {
           "
         >
           <div>
-            {variant === 'LOGIN' ? 'New to Messenger?' : 'Already have an account?'} 
+            {variant === 'LOGIN' ? 'Primera visita?' : 'Ya estás registrado?'} 
           </div>
           <div 
             onClick={toggleVariant} 
             className="underline cursor-pointer"
           >
-            {variant === 'LOGIN' ? 'Create an account' : 'Login'}
+            {variant === 'LOGIN' ? 'Creá tu cuenta' : 'Logueate'}
           </div>
         </div>
       </div>
