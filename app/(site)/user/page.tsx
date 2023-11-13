@@ -46,8 +46,8 @@ async function UserPage() {
       </section>
       
 {/*aca armo el nuevo component*/}
-      <NewRowPrincipal books={books} title="colección personal"/>
-
+   {/*   <NewRowPrincipal books={books} title="colección personal"/>
+/*}
 
            
       {/*Row para MIS LIBROS*/}

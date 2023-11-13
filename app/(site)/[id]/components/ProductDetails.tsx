@@ -1,10 +1,4 @@
-"use client";
-
-import { useDigitalOrPhysicalContext } from "@/app/context/DigitalOrPhysicalContext"
 import { Book } from "@prisma/client";
-import {useState, useEffect} from "react"
-
-
 import Carrousel from "../../components/Carrousel";
 import TechSpecs from "../../components/TechSpecs";
 import TechSpecsCollection from "../../components/TechSpecsCollection";
@@ -12,56 +6,42 @@ import ImageCollage from "../../components/mdDevicesAndAbove/ImageCollage";
 import TechSpecsCollectionMd from "../../components/mdDevicesAndAbove/TechSpecsCollectionMd";
 import GridForCollectionsAndCombosMd from "../../components/mdDevicesAndAbove/GridForCollectionsAndCombosMd";
 import BuyButton from "@/app/components/BuyButton";
-import ReadButton from "@/app/components/ReadButton";
-import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import prisma from "@/libs/prismadb"
+import ButtonSelector from "./ButtonSelector";
 
 
+ async function ProductDetail({ books, id }: {books: Book[], id: string}) {
+const session = await getServerSession(authOptions);
+const userEmail  = session?.user?.email ?? ""
+const bookId = id
 
- function ProductDetail({ books, id }: {books: Book[], id: string}) {
-
-  const { isDigital, setIsDigital } = useDigitalOrPhysicalContext();
-  const [hasBook, setHasBook] = useState(true)
-  const [showPdf, setShowPdf] = useState(false)
-  const {data: session} = useSession();
-  const userEmail = session?.user?.email ?? ""
- const bookId = useParams();
-
- // pasar esta funcion a un comp server
- const userHasBook = async (userEmail: string, bookId: string) => {
-  const user = await prisma?.user.findUnique({
+///////////////////ahora esto devuelve true o false, pero deberia aplicarlo a un estado, creo, para poder usarlo....
+const userHasCurrentBook = async (userEmail: string, bookId: string) => {
+  const user = await prisma.user.findUnique({
     where: {
       email: userEmail,
-    },
+    }
   });
 
-  if (user) {
-    const userHasBook = user.booksById.includes(bookId);
-    return userHasBook;
+  if(user){
+    const result = user.booksById.includes(bookId);
+    return result
   }
+};
 
-  return false;
- }
+const userHas = await userHasCurrentBook(userEmail, bookId) as boolean;
+//////////////////////
 
- const checkUserHasBook = async (userEmail: string, bookId: string) => {
-  const userHasBookResult = await userHasBook(userEmail, bookId);
-
-  console.log("aca", userHasBookResult);
-}
-
-// Llamada a la función
-checkUserHasBook('user@example.com', 'book123');
- 
   //filter selected product
   const [book] = books.filter((it) => it.id === id);
 
+
   //filter same genre
-  const sameGenreBooks = books.filter((it) => it.genreName === book.genreName && it.id!==id);  
+  const sameGenreBooks = books && book  ? books.filter((it) => it.genreName === book.genreName && it.id!==id) : [];  
   
-  //filter digital o physical from digitalContext
-  const filteredSameGenreBooks = sameGenreBooks.filter(
-    (it) => it.isDigital === isDigital
-  );
+
 
 
 
@@ -70,21 +50,21 @@ checkUserHasBook('user@example.com', 'book123');
     <section className="p-4">
       {/*contenedor de imagenes y titulos*/}
 
-
-
       {/*small devices*/}
       <div className="block md:hidden">
         <Carrousel book={book} />
 
-        {book.isColeccion === false && 
+        {book && book.isColeccion === false && 
         book.isCombo === false ? (
           <>
-            <TechSpecs book={book} />  
-          {hasBook ? <ReadButton book={book} showPdf={showPdf} setShowPdf={setShowPdf} /> : <BuyButton book={book} />}
+            <TechSpecs book={book} />
+
+        <ButtonSelector book={book} userHas={userHas}/>
+     
           </>
         ) : (
           <TechSpecsCollection
-            filteredSameGenreBooks={filteredSameGenreBooks}
+            filteredSameGenreBooks={sameGenreBooks}
             book={book}
            // comboProducts={comboProducts}
           />
@@ -99,17 +79,17 @@ checkUserHasBook('user@example.com', 'book123');
             <ImageCollage book={book} />
           </div>
 
-          {book.isColeccion === false && book.isCombo === false ? (<div className="flex flex-col">
+          {book && book.isColeccion === false && book.isCombo === false ? (<div className="flex flex-col">
           <TechSpecs book={book} /> 
           
-          {hasBook ? <ReadButton book={book} showPdf={showPdf} setShowPdf={setShowPdf} /> : <BuyButton book={book} />}
+          <ButtonSelector book={book} userHas={userHas}/>
          
           
           
           </div>
         ) : (  <div>  
           <TechSpecsCollectionMd
-            filteredSameGenreBooks={filteredSameGenreBooks}
+            filteredSameGenreBooks={sameGenreBooks}
             book={book}
            //comboProducts={comboProducts}
           />
@@ -117,7 +97,7 @@ checkUserHasBook('user@example.com', 'book123');
         )}
 
         </div>   {/*Descripcion detallada, comentarios*/}
-      {!book.isColeccion && !book.isCombo && (
+      {book && !book.isColeccion && !book.isCombo && (
         <div className="space-y-6 ml-4 mt-4 mr-6">
           <div className="">
             <div className="my-8">
@@ -142,14 +122,16 @@ checkUserHasBook('user@example.com', 'book123');
 
       <div className="hidden md:block">
       <GridForCollectionsAndCombosMd 
-          filteredSameGenreBooks={filteredSameGenreBooks} 
+          filteredSameGenreBooks={sameGenreBooks} 
           book={book}
           //comboProducts={comboProducts} 
          />
           </div>
-{showPdf && <div style={{ position: "relative", paddingBottom: "100%", height: 0, overflow: "hidden" }}>
-<iframe src="https://drive.google.com/file/d/1H3Wa0C4bVisJuKV8oWJehwk9cOJs7fLn/preview" width="100%" height="800" allow="autoplay"></iframe>
-</div>}
+
+
+
+
+
 
     </section>
   );

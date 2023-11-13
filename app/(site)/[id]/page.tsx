@@ -6,16 +6,18 @@ import prisma from "@/libs/prismadb"
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import UnathorizedNavbar from "@/app/(site)/components/header/UnauthorizedNavbar"
+import UserNavbar from "@/app/(site)/user/components/navbar/UserNavbar"
 
 async function BookByIdPage({params}: {params: Params}) {
 
+    const session = await getServerSession(authOptions);
     const books: Book[] = await prisma.book.findMany({})
 
  
   return (
     <div>
 
-<UnathorizedNavbar />
+{session?.user  ? <UserNavbar /> : <UnathorizedNavbar />}
 
 
 

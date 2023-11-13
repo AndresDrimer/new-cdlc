@@ -79,3 +79,24 @@ export const handleChangeUserName = async (formData: FormData) => {
     }
   };
 
+
+ // pasar esta funcion a un comp server
+ export const userHasBook = async (userEmail: string, bookId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (user) {
+    const userHasBook = user.booksById.includes(bookId);
+    return userHasBook;
+  }
+
+  return false;
+ }
+
+
+
+
+ 
